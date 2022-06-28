@@ -1,0 +1,184 @@
+﻿<Window x:Class="Hex_Casting_Generator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Hex_Casting_Generator"
+        mc:Ignorable="d"
+        Title="Hex Casting Pattern Generator" Height="450" Width="800" Icon="/hex100.png">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="60" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="10" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch">
+            <MenuItem Header="_Options">
+                <MenuItem Header="_Select Colors" x:Name="menuSelectColors" />
+                <MenuItem IsCheckable="True" IsChecked="True" Header="_Limit Values" x:Name="menuLimitVals">
+                    <MenuItem.ToolTip>
+                        <TextBlock TextAlignment="Left">
+                            If enabled, patterns which result in a higher value than the target are rejected. 
+                            <LineBreak/>
+                            Disabling can give better optimized results, but will heavily increase generation time.
+                        </TextBlock>
+                    </MenuItem.ToolTip>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <Label Grid.Row="3" Grid.Column="0" x:Name="rowsLbl" HorizontalAlignment="Center" Content="Max Rows:">
+            <Label.ToolTip>
+                <TextBlock TextAlignment="Left">The maximum amount of rows in the pattern. Increasing this heavily increases the generation time,
+                    <LineBreak/>but a large target can require a large size to find a pattern.
+                </TextBlock>
+            </Label.ToolTip>
+        </Label>
+        <TextBox Grid.Row="4" Grid.Column="0" x:Name="rowsBox" HorizontalAlignment="Stretch" TextAlignment="Center">
+            <TextBox.ToolTip>
+                <TextBlock TextAlignment="Left">The maximum amount of rows in the pattern. Increasing this heavily increases the generation time,
+                    <LineBreak/>but a large target can require a large size to find a pattern.
+                </TextBlock>
+            </TextBox.ToolTip>
+        </TextBox>
+        <Label Grid.Row="6" Grid.Column="0" x:Name="colsLbl" HorizontalAlignment="Center" Content="Max Columns:">
+            <Label.ToolTip>
+                <TextBlock TextAlignment="Left">The maximum amount of columns in the pattern. Increasing this heavily increases the generation time,
+                    <LineBreak/>but a large target can require a large size to find a pattern. The columns are counted across
+                    <LineBreak/>a row, rather than along the diagonals, so, for instance, pattern "aqaa southeast" is a 3x2 pattern.
+                </TextBlock>
+            </Label.ToolTip>
+        </Label>
+        <TextBox Grid.Row="7" Grid.Column="0" x:Name="colsBox" HorizontalAlignment="Stretch" TextAlignment="Center">
+            <TextBox.ToolTip>
+                <TextBlock TextAlignment="Left">The maximum amount of columns in the pattern. Increasing this heavily increases the generation time,
+                    <LineBreak/>but a large target can require a large size to find a pattern. The columns are counted across
+                    <LineBreak/>a row, rather than along the diagonals, so, for instance, pattern "aqaa southeast" is a 3x2 pattern.
+                </TextBlock>
+            </TextBox.ToolTip>
+        </TextBox>
+        <Label Grid.Row="9" Grid.Column="0" x:Name="targetLbl" HorizontalAlignment="Center" Content="Target:">
+            <Label.ToolTip>
+                <TextBlock TextAlignment="Left">
+                    The value the generator will attempt to generate a literal for.
+                </TextBlock>
+            </Label.ToolTip>
+        </Label>
+        <TextBox Grid.Row="10" Grid.Column="0" x:Name="targetBox" HorizontalAlignment="Stretch" TextAlignment="Center">
+            <TextBox.ToolTip>
+                <TextBlock TextAlignment="Left">
+                    The value the generator will attempt to generate a literal for.
+                </TextBlock>
+            </TextBox.ToolTip>
+        </TextBox>
+        <Label Grid.Row="12" Grid.Column="0" x:Name="carryLbl" HorizontalAlignment="Center" Content="Carry-over:">
+            <Label.ToolTip>
+                <TextBlock TextAlignment="Left">
+                        This correlates to the amount of patterns carried over from step to step.
+                    <LineBreak/>
+                        Higher numbers result in a more optimized result, but can increase
+                    <LineBreak/>
+                        generation time, particularly for large values of Max Rows and Max Columns</TextBlock>
+            </Label.ToolTip>
+        </Label>
+        <TextBox Grid.Row="13" Grid.Column="0" x:Name="carryBox" HorizontalAlignment="Stretch" TextAlignment="Center">
+            25
+            <TextBox.ToolTip>
+                <TextBlock TextAlignment="Left">
+                        This correlates to the amount of patterns carried over from step to step.
+                    <LineBreak/>
+                        Higher numbers result in a more optimized result, but can increase
+                    <LineBreak/>
+                        generation time, particularly for large values of Max Rows and Max Columns</TextBlock>
+            </TextBox.ToolTip>
+        </TextBox>
+        <Label Grid.Row="15" Grid.Column="0" x:Name="outputLbl" HorizontalAlignment="Center" Content="Pattern:">
+            <Label.ToolTip>
+                <TextBlock TextAlignment="Left">
+                    The generated pattern, in the format used by the r16 discord bot.
+                </TextBlock>
+            </Label.ToolTip>
+        </Label>
+        <TextBox Grid.Row="16" Grid.Column="0" x:Name="outputBox" HorizontalAlignment="Stretch" TextAlignment="Center">
+            <TextBox.ToolTip>
+                <TextBlock TextAlignment="Left">
+                    The generated pattern, or pattern to be displayed, in the format used by the r16 discord bot (turnLetters startDirection).
+                </TextBlock>
+            </TextBox.ToolTip>
+        </TextBox>
+        <Button Grid.Row="18" Grid.Column="0" x:Name="genButton" HorizontalAlignment="Left">
+            Generate
+            <Button.ToolTip>
+                <TextBlock>
+                    Starts generating a pattern. Requires Max Rows, Max Columns, Target, and Carry-over to be set. 
+                    <LineBreak/>                        
+                    Will overwrite Pattern and replace the currently drawn pattern.
+                </TextBlock>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Row="18" Grid.Column="0" x:Name="displayButton" HorizontalAlignment="Right" Width="46">
+            Display
+            <Button.ToolTip>
+                <TextBlock>
+                    Displays a pattern. Requires Max Rows, Max Columns, and Pattern to be set. 
+                    <LineBreak/>
+                    Will replace the currently drawn pattern.
+                </TextBlock>
+            </Button.ToolTip>
+        </Button>
+        <Canvas Grid.Row="2" Grid.Column="2" Grid.RowSpan="18" Grid.ColumnSpan="1" x:Name="patternPanel" Height="Auto" Width="Auto">
+        </Canvas>
+        <Popup x:Name="colorPopup" Width="Auto" Height="Auto">
+            <Grid Background="WhiteSmoke">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="50" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">Color 1</Label>
+                <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="color1Box"/>
+                <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">Color 2</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="color2Box"/>
+                <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">Color 3</Label>
+                <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="color3Box"/>
+                <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">Color 4</Label>
+                <TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" x:Name="color4Box"/>
+                <Rectangle Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Fill="#3380cc" x:Name="color1Sample"/>
+                <Rectangle Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Fill="#fb80fb" x:Name="color2Sample"/>
+                <Rectangle Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Fill="#9880cb" x:Name="color3Sample"/>
+                <Rectangle Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Fill="#910698" x:Name="color4Sample"/>
+                <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" x:Name="btnApplyColor">Apply</Button>
+            </Grid>
+        </Popup>
+    </Grid>
+</Window>
