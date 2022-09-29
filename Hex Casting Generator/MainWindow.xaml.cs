@@ -32,6 +32,8 @@ namespace Hex_Casting_Generator
         static int color3 = 0x9880cb; 
         static int color4 = 0x910698;
 
+        static int antialias = 1; //would be a boolean, similar to limit vals; 1 is truthy, 0 falsey
+
         public static int limitVals = 1; //disabled if == 0
 
         public MainWindow()
@@ -48,10 +50,22 @@ namespace Hex_Casting_Generator
             btnApplyColor.Click += ApplyColor;
             menuLimitVals.Checked += EnableValLimit;
             menuLimitVals.Unchecked += DisableValLimit;
+            menuAliasing.Checked += EnableAntialiasing;
+            menuAliasing.Unchecked += DisableAntialiasing;
         }
 
         Regex colorMatch3 = new(@"([\da-f])([\da-f])([\da-f])");
         Regex colorMatch6 = new(@"([\da-f]{2})([\da-f]{2})([\da-f]{2})");
+
+        public void EnableAntialiasing(object sender, EventArgs e)
+        {
+            Interlocked.Exchange(ref antialias, 1);
+        }
+
+        public void DisableAntialiasing(object sender, EventArgs e)
+        {
+            Interlocked.Exchange(ref antialias, 0);
+        }
 
         public void EnableValLimit(object sender, EventArgs e)
         {
@@ -380,6 +394,8 @@ namespace Hex_Casting_Generator
             Bounds bounds = GetSpacingAround(p, patternPanel);
             List<Node> nodes = p.GetNodesCopy();
             Color[] colors = FourColorStops(p);
+            int antialiasing = Interlocked.Exchange(ref antialias, -1);
+            Interlocked.Exchange(ref antialias, antialiasing); //write back
             bool first = true;
             start = null;
             for (int i = 0; i < nodes.Count - 1; i++)
@@ -412,6 +428,8 @@ namespace Hex_Casting_Generator
                     StrokeEndLineCap = PenLineCap.Round,
                     StrokeStartLineCap = PenLineCap.Round
                 };
+                if(antialiasing == 0)
+                    RenderOptions.SetEdgeMode(ln, EdgeMode.Aliased);
                 segments.Add(ln);
             }
             segments.Reverse();
@@ -472,6 +490,10 @@ namespace Hex_Casting_Generator
                 StrokeStartLineCap = PenLineCap.Round,
                 Fill = brush
             };
+            int antialiasing = Interlocked.Exchange(ref antialias, -1);
+            Interlocked.Exchange(ref antialias, antialiasing); //write back
+            if (antialiasing == 0)
+                RenderOptions.SetEdgeMode(poly, EdgeMode.Aliased);
             return poly;
         }
 
@@ -497,7 +519,7 @@ namespace Hex_Casting_Generator
             Color currentColor = colors[0];
             int currentDex = 0;
 
-            Dictionary<Tuple<int, int>, List<int>> colorsReached = new(); //uses the coords just to be sure it's matching correctly
+            Dictionary<Tuple<int, int>, List<int>> colorsReached = new(); //uses the coords and indices just to be sure it's matching correctly
 
             //As before, each node gets a gradient stop, offset wont matter since the offset will be set later
             //may as well return colors honestly, but oh well

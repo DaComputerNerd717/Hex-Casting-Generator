@@ -48,6 +48,15 @@
                         </TextBlock>
                     </MenuItem.ToolTip>
                 </MenuItem>
+                <MenuItem IsCheckable="True" IsChecked="True" Header="Enable _Anti-aliasing" x:Name="menuAliasing">
+                    <MenuItem.ToolTip>
+                        <TextBlock>
+                            If enabled, lines will be antialiased, reducing jaggedness.
+                            <LineBreak/> 
+                            Disabling this can make isolating the pattern from the background easier in editing
+                        </TextBlock>
+                    </MenuItem.ToolTip>
+                </MenuItem>
             </MenuItem>
         </Menu>
         <Label Grid.Row="3" Grid.Column="0" x:Name="rowsLbl" HorizontalAlignment="Center" Content="Max Rows:">
