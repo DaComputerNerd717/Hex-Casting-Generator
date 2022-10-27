@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,6 +14,8 @@ namespace Hex_Casting_Generator.Graphs
         int target;
         HexGraph graph;
         PriorityQueue<Path, int> frontier;
+
+        Path? smallest = null;
         //No need to track past paths; the paths are always expanding, so past paths are just shorter versions of frontier paths
 
         public PathGenAStar(int target, HexGraph graph)
@@ -32,11 +35,23 @@ namespace Hex_Casting_Generator.Graphs
             while(frontier.Count > 0)
             {
                 bool found = UpdateFrontier();
-                if (found) 
-                    return frontier.UnorderedItems.Select(p=>p.Element).Where(p => (PathValue(p) == target)).First();
-                    //in A*, the first result found is the best. Here, it will be the smallest path, hopefully
+                if (found)
+                {
+                    //clear all paths which are larger or longer
+                    foreach (Path toCompare in frontier.UnorderedItems.Select(p => p.Element).Where(p => (PathValue(p) == target)).ToList())
+                    {
+                        if (smallest == null || GetPathBounds(smallest).GetArea() > GetPathBounds(toCompare).GetArea())
+                        {
+                            smallest = toCompare;
+                            List<(Path, int)> toKeep = frontier.UnorderedItems.Where(t => t.Priority <= smallest.PathLength() &&
+                                        GetPathBounds(t.Element).GetArea() < GetPathBounds(smallest).GetArea()).ToList();
+                            frontier.Clear();
+                            frontier.EnqueueRange(toKeep);
+                        }
+                    }
+                }
             }
-            return null;
+            return smallest;
         }
 
         public bool UpdateFrontier()
@@ -71,9 +86,20 @@ namespace Hex_Casting_Generator.Graphs
                     Node nn = ne.OppositeNode(lastNode);
                     Path? newPath = p.CopyWithNode(nn);
                     if (newPath != null && (newPath.GetLastTurn() != Turn.SHARP_RIGHT || PathValue(p) % 2 == 0)) //no fractions
+                    {
+                        if (smallest != null && (newPath.PathLength() > smallest.PathLength() ||
+                                    GetPathBounds(newPath).GetArea() > GetPathBounds(smallest).GetArea()))
+                        { //we have a better path already
+                            Debug.WriteLine("Path " + p.ToString() + " worse than " + smallest.ToString());
+                            continue;
+                        }
                         paths.Add(newPath);
+                    } 
+                        
                 }
             }
+            if(smallest != null)
+                paths.RemoveAll(p => p.PathLength() > smallest.PathLength() || GetPathBounds(p).GetArea() > GetPathBounds(smallest).GetArea());
             return paths;
         }
 

@@ -67,8 +67,8 @@ namespace Hex_Casting_Generator.Graphs
         public bool SmallerBounds(GridBounds initial, GridBounds test)
         {
             double b1, b2;
-            b1 = (initial.maxRow - initial.minRow) * (initial.maxCol - initial.minCol);
-            b2 = (test.maxRow - test.minRow) * (test.maxCol - test.minCol);
+            b1 = (initial.maxRow - initial.minRow + 1) * (initial.maxCol - initial.minCol + 1);
+            b2 = (test.maxRow - test.minRow + 1) * (test.maxCol - test.minCol + 1);
             return b2 < b1;
         }
 
@@ -284,7 +284,7 @@ namespace Hex_Casting_Generator.Graphs
 
         public double GetArea()
         {
-            return (maxCol - minCol) * (maxRow - minRow);
+            return (maxCol - minCol + 1) * (maxRow - minRow + 1);
         }
     }
 }
