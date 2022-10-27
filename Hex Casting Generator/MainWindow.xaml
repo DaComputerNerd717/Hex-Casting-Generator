@@ -57,6 +57,15 @@
                         </TextBlock>
                     </MenuItem.ToolTip>
                 </MenuItem>
+                <MenuItem IsCheckable="True" IsChecked="False" Header ="_Use A* Algorithm" x:Name="menuAStar">
+                    <MenuItem.ToolTip>
+                        <TextBlock>
+                            If disabled, the generator uses the Beam Search algorithm. This algorithm is not guaranteed to find the best pattern, but will run relatively quickly.
+                            <LineBreak/>
+                            If enabled, the generator uses the A* algorithm. This algorithm can be slower, but is guaranteed to give one of the shortest possible paths. This algorithm also uses substantially more memory than beam search.
+                        </TextBlock>
+                    </MenuItem.ToolTip>
+                </MenuItem>
             </MenuItem>
         </Menu>
         <Label Grid.Row="3" Grid.Column="0" x:Name="rowsLbl" HorizontalAlignment="Center" Content="Max Rows:">

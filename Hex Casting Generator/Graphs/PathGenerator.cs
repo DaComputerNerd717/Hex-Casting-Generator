@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hex_Casting_Generator.Graphs
 {
-    public class PathGenerator
+    public class PathGenerator : PathGenBase
     {
         HexGraph graph;
         int target;
@@ -22,7 +22,7 @@ namespace Hex_Casting_Generator.Graphs
             this.carryOver = carryOver;
         }
 
-        public Path? FindPath()
+        public override Path? FindPath()
         {
             Node middle = graph.defaultStart;
             beam.Add(target > 0 ? Path.BuildPosZero(middle) : Path.BuildNegZero(middle));
@@ -30,6 +30,11 @@ namespace Hex_Casting_Generator.Graphs
             do
             {
                 ExpandBeam();
+                if(currentSmallest != null)
+                {
+                    GridBounds b = GetPathBounds(currentSmallest);
+                    beam.RemoveAll(p => SmallerBounds(b, GetPathBounds(p))); //too long to lead to a better path
+                }
                 TrimToBest();
                 List<Path> finished = new();
                 foreach (Path p in beam)
@@ -53,6 +58,7 @@ namespace Hex_Casting_Generator.Graphs
                         currentSmallest = p;
                     }
                 }
+                
             }
             while (beam.Count != 0);
             return currentSmallest;
@@ -275,5 +281,10 @@ namespace Hex_Casting_Generator.Graphs
     {
         public int minRow, maxRow;
         public double minCol, maxCol;
+
+        public double GetArea()
+        {
+            return (maxCol - minCol) * (maxRow - minRow);
+        }
     }
 }

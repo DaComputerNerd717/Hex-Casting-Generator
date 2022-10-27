@@ -26,6 +26,7 @@ namespace Hex_Casting_Generator
         Graphs.Path? path = null;
 
         bool beenRun = false;
+        static int genAStar = 0;
 
         static int color1 = 0x3380cc;
         static int color2 = 0xfb80fb; 
@@ -52,6 +53,8 @@ namespace Hex_Casting_Generator
             menuLimitVals.Unchecked += DisableValLimit;
             menuAliasing.Checked += EnableAntialiasing;
             menuAliasing.Unchecked += DisableAntialiasing;
+            menuAStar.Checked += EnableAStar;
+            menuAStar.Unchecked += DisableAStar;
         }
 
         Regex colorMatch3 = new(@"([\da-f])([\da-f])([\da-f])");
@@ -75,6 +78,16 @@ namespace Hex_Casting_Generator
         public void DisableValLimit(object sender, EventArgs e)
         {
             Interlocked.Exchange(ref limitVals, 0);
+        }
+
+        public void EnableAStar(object sender, EventArgs e)
+        {
+            Interlocked.Exchange(ref genAStar, 1);
+        }
+
+        public void DisableAStar(object sender, EventArgs e)
+        {
+            Interlocked.Exchange(ref genAStar, 0);
         }
 
         public void ApplyColor(object sender, RoutedEventArgs e)
@@ -326,7 +339,11 @@ namespace Hex_Casting_Generator
             {
                 this.Title = "Hex Casting Pattern Generator - Generating";
                 HexGraph graph = new(rows, cols);
-                PathGenerator gen = new(target, graph, carryOver); 
+                PathGenBase gen;
+                if(genAStar == 0)
+                    gen = new PathGenerator(target, graph, carryOver); //beam search
+                else
+                    gen = new PathGenAStar(target, graph); //A*
                 Graphs.Path? path = gen.FindPath(); //todo move to new thread
                 Interlocked.Exchange(ref this.path, path);
                 outputBox.Text = path?.ToString() ?? "No path found";

@@ -65,6 +65,11 @@ namespace Hex_Casting_Generator.Graphs
             return p;
         }
 
+        public int PathLength()
+        {
+            return Nodes.Count;
+        }
+
         public Turn GetLastTurn()
         {
             Direction dir1, dir2;
