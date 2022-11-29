@@ -87,6 +87,8 @@ namespace Hex_Casting_Generator.Graphs
                     Path? newPath = p.CopyWithNode(nn);
                     if (newPath != null && (newPath.GetLastTurn() != Turn.SHARP_RIGHT || PathValue(p) % 2 == 0)) //no fractions
                     {
+                        if (PathValue(newPath) > target && Interlocked.Equals(MainWindow.limitVals, 1))
+                            continue;
                         if (smallest != null && (newPath.PathLength() > smallest.PathLength() ||
                                     GetPathBounds(newPath).GetArea() > GetPathBounds(smallest).GetArea()))
                         { //we have a better path already

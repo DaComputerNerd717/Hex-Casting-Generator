@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -40,7 +41,7 @@ namespace Hex_Casting_Generator
         public MainWindow()
         {
             InitializeComponent();
-            genButton.Click += GenButton_Click;
+            genButton.Click += GenButton_Click2;
             this.SizeChanged += OnSizeChange;
             displayButton.Click += DispButton_Click;
             menuSelectColors.Click += SelectColor_Click;
@@ -361,21 +362,83 @@ namespace Hex_Casting_Generator
                             patternPanel.Children.Clear();
                             foreach (Line l in lines)
                             {
+                                patternPanel.Children.Add(l);
                                 Canvas.SetLeft(l, 0);
                                 Canvas.SetTop(l, 0);
-                                AddChild(patternPanel, l);
+                                //AddChild(patternPanel, l);
                             }
                             if (start != null)
                             {
+                                patternPanel.Children.Add(start);
                                 Canvas.SetLeft(start, 0);
                                 Canvas.SetTop(start, 0);
-                                AddChild(patternPanel, start);
+                                //AddChild(patternPanel, start);
                             }
                         }
                     });
                 }
                 this.Title = "Hex Casting Pattern Generator";
             }
+        }
+
+        public async void GenButton_Click2(object sender, RoutedEventArgs e)
+        {
+            beenRun = true;
+            int rows = 0, cols = 0, target = 0, carryOver = 0;
+            bool inputs = int.TryParse(rowsBox.Text, out rows) &&
+                int.TryParse(colsBox.Text, out cols) &&
+                int.TryParse(targetBox.Text, out target) &&
+                int.TryParse(carryBox.Text, out carryOver);
+            if (inputs)
+            {
+                this.Title = "Hex Casting Pattern Generator - Generating";
+                HexGraph graph = new(rows, cols);
+                PathGenBase gen;
+                if (genAStar == 0)
+                    gen = new PathGenerator(target, graph, carryOver); //beam search
+                else
+                    gen = new PathGenAStar(target, graph); //A*
+                await GenPathAsync(gen).ContinueWith((t) =>
+                {
+                    Interlocked.Exchange(ref this.path, t.Result);
+                    if (path != null)
+                    {
+                        patternPanel.Dispatcher.Invoke(() =>
+                        {
+                            Graphs.Path? currentPath = Interlocked.Exchange(ref this.path, null);
+                            if (currentPath != null)
+                            {
+                                Graphs.Path copy = currentPath!.Copy();
+                                Interlocked.Exchange(ref this.path, copy); //copy back
+                                Polyline? start;
+                                patternPanel.Children.Clear();
+                                Line[] lines = CreatePathSegments(currentPath, patternPanel, out start);
+                                foreach (Line l in lines)
+                                {
+                                    AddChild(patternPanel, l);
+                                    Canvas.SetLeft(l, 0);
+                                    Canvas.SetTop(l, 0);
+                                }
+                                if (start != null)
+                                {
+                                    AddChild(patternPanel, start);
+                                    Canvas.SetLeft(start, 0);
+                                    Canvas.SetTop(start, 0);
+                                }
+                            }
+                            outputBox.Text = path?.ToString() ?? "No path found";
+                            this.Title = "Hex Casting Pattern Generator";
+                        });
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+        }
+
+        private async Task<Graphs.Path?> GenPathAsync(PathGenBase gen)
+        {
+            return await Task.Run(() => {
+                return gen.FindPath();
+            });
         }
 
         public static void AddChild(Visual parent, UIElement child)
