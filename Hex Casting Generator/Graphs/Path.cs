@@ -162,12 +162,12 @@ namespace Hex_Casting_Generator.Graphs
             int dirInt = from.edges.Where(e => e.Value?.IsIncident(to) ?? false).Select(a => a.Key).FirstOrDefault(-1);
             return dirInt switch
             {
-                0 => Direction.NORTHWEST,
-                1 => Direction.NORTHEAST,
+                0 => Direction.NORTH_WEST,
+                1 => Direction.NORTH_EAST,
                 2 => Direction.WEST,
                 3 => Direction.EAST,
-                4 => Direction.SOUTHWEST,
-                5 => Direction.SOUTHEAST,
+                4 => Direction.SOUTH_WEST,
+                5 => Direction.SOUTH_EAST,
                 _ => Direction.NONE,
             };
         }
@@ -176,64 +176,64 @@ namespace Hex_Casting_Generator.Graphs
         {
             return dirIn switch
             {
-                Direction.NORTHWEST => dirOut switch
+                Direction.NORTH_WEST => dirOut switch
                 {
-                    Direction.NORTHWEST => Turn.STRAIGHT,
-                    Direction.NORTHEAST => Turn.RIGHT,
+                    Direction.NORTH_WEST => Turn.STRAIGHT,
+                    Direction.NORTH_EAST => Turn.RIGHT,
                     Direction.WEST => Turn.LEFT,
                     Direction.EAST => Turn.SHARP_RIGHT,
-                    Direction.SOUTHWEST => Turn.SHARP_LEFT,
-                    Direction.SOUTHEAST => Turn.REVERSE,
+                    Direction.SOUTH_WEST => Turn.SHARP_LEFT,
+                    Direction.SOUTH_EAST => Turn.REVERSE,
                     _ => Turn.NONE,
                 },
-                Direction.NORTHEAST => dirOut switch
+                Direction.NORTH_EAST => dirOut switch
                 {
-                    Direction.NORTHWEST => Turn.LEFT,
-                    Direction.NORTHEAST => Turn.STRAIGHT,
+                    Direction.NORTH_WEST => Turn.LEFT,
+                    Direction.NORTH_EAST => Turn.STRAIGHT,
                     Direction.WEST => Turn.SHARP_LEFT,
                     Direction.EAST => Turn.RIGHT,
-                    Direction.SOUTHWEST => Turn.REVERSE,
-                    Direction.SOUTHEAST => Turn.SHARP_RIGHT,
+                    Direction.SOUTH_WEST => Turn.REVERSE,
+                    Direction.SOUTH_EAST => Turn.SHARP_RIGHT,
                     _ => Turn.NONE,
                 },
                 Direction.WEST => dirOut switch
                 {
-                    Direction.NORTHWEST => Turn.RIGHT,
-                    Direction.NORTHEAST => Turn.SHARP_RIGHT,
+                    Direction.NORTH_WEST => Turn.RIGHT,
+                    Direction.NORTH_EAST => Turn.SHARP_RIGHT,
                     Direction.WEST => Turn.STRAIGHT,
                     Direction.EAST => Turn.REVERSE,
-                    Direction.SOUTHWEST => Turn.LEFT,
-                    Direction.SOUTHEAST => Turn.SHARP_LEFT,
+                    Direction.SOUTH_WEST => Turn.LEFT,
+                    Direction.SOUTH_EAST => Turn.SHARP_LEFT,
                     _ => Turn.NONE,
                 },
                 Direction.EAST => dirOut switch
                 {
-                    Direction.NORTHWEST => Turn.SHARP_LEFT,
-                    Direction.NORTHEAST => Turn.LEFT,
+                    Direction.NORTH_WEST => Turn.SHARP_LEFT,
+                    Direction.NORTH_EAST => Turn.LEFT,
                     Direction.WEST => Turn.REVERSE,
                     Direction.EAST => Turn.STRAIGHT,
-                    Direction.SOUTHWEST => Turn.SHARP_RIGHT,
-                    Direction.SOUTHEAST => Turn.RIGHT,
+                    Direction.SOUTH_WEST => Turn.SHARP_RIGHT,
+                    Direction.SOUTH_EAST => Turn.RIGHT,
                     _ => Turn.NONE,
                 },
-                Direction.SOUTHWEST => dirOut switch
+                Direction.SOUTH_WEST => dirOut switch
                 {
-                    Direction.NORTHWEST => Turn.SHARP_RIGHT,
-                    Direction.NORTHEAST => Turn.REVERSE,
+                    Direction.NORTH_WEST => Turn.SHARP_RIGHT,
+                    Direction.NORTH_EAST => Turn.REVERSE,
                     Direction.WEST => Turn.RIGHT,
                     Direction.EAST => Turn.SHARP_LEFT,
-                    Direction.SOUTHWEST => Turn.STRAIGHT,
-                    Direction.SOUTHEAST => Turn.LEFT,
+                    Direction.SOUTH_WEST => Turn.STRAIGHT,
+                    Direction.SOUTH_EAST => Turn.LEFT,
                     _ => Turn.NONE,
                 },
-                Direction.SOUTHEAST => dirOut switch
+                Direction.SOUTH_EAST => dirOut switch
                 {
-                    Direction.NORTHWEST => Turn.REVERSE,
-                    Direction.NORTHEAST => Turn.SHARP_LEFT,
+                    Direction.NORTH_WEST => Turn.REVERSE,
+                    Direction.NORTH_EAST => Turn.SHARP_LEFT,
                     Direction.WEST => Turn.SHARP_RIGHT,
                     Direction.EAST => Turn.LEFT,
-                    Direction.SOUTHWEST => Turn.RIGHT,
-                    Direction.SOUTHEAST => Turn.STRAIGHT,
+                    Direction.SOUTH_WEST => Turn.RIGHT,
+                    Direction.SOUTH_EAST => Turn.STRAIGHT,
                     _ => Turn.NONE,
                 },
                 _ => Turn.NONE,
@@ -261,11 +261,11 @@ namespace Hex_Casting_Generator.Graphs
                 };
             }
             Direction firstDir = GetDirection(Nodes[0], Nodes[1]);
-            s += " " + firstDir.ToString().ToLower();
+            s = firstDir.ToString() + " " + s;
             return s;
         }
 
-        static Regex withDir = new(@"([asdqwe]*) ((?:north|south)?east|(?:north|south)?west)");
+        static Regex withDir = new(@"((?:NORTH_|SOUTH_)?EAST|(?:NORTH_|SOUTH_)?WEST) ([asdqwe]*)");
         static Regex withoutDir = new(@"[asdqwe]*");
 
         public static bool IsValidPathString(string str)
@@ -276,11 +276,11 @@ namespace Hex_Casting_Generator.Graphs
         public static Path? FromString(string str, HexGraph graph)
         {
             if (!withDir.IsMatch(str) && withoutDir.IsMatch(str))
-                str = withoutDir.Match(str).Value + " east";
+                str = "EAST " + withoutDir.Match(str).Value;
             //now we have a direction for sure
             Match m = withDir.Match(str);
-            Direction start = DirFromString(m.Groups[2].Value);
-            Turn[] turns = TurnsFromString(m.Groups[1].Value);
+            Direction start = DirFromString(m.Groups[1].Value);
+            Turn[] turns = TurnsFromString(m.Groups[2].Value);
             Direction dir = start;
             Node node = graph.defaultStart;
             Path result = new(graph.defaultStart);
@@ -317,22 +317,22 @@ namespace Hex_Casting_Generator.Graphs
                 Turn.REVERSE => DirAfterTurn(DirAfterTurn(before, Turn.SHARP_LEFT), Turn.LEFT),
                 Turn.LEFT => before switch
                 {
-                    Direction.NORTHWEST => Direction.WEST,
-                    Direction.NORTHEAST => Direction.NORTHWEST,
-                    Direction.WEST => Direction.SOUTHWEST,
-                    Direction.EAST => Direction.NORTHEAST,
-                    Direction.SOUTHWEST => Direction.SOUTHEAST,
-                    Direction.SOUTHEAST => Direction.EAST,
+                    Direction.NORTH_WEST => Direction.WEST,
+                    Direction.NORTH_EAST => Direction.NORTH_WEST,
+                    Direction.WEST => Direction.SOUTH_WEST,
+                    Direction.EAST => Direction.NORTH_EAST,
+                    Direction.SOUTH_WEST => Direction.SOUTH_EAST,
+                    Direction.SOUTH_EAST => Direction.EAST,
                     _ => Direction.NONE,
                 },
                 Turn.RIGHT => before switch
                 {
-                    Direction.NORTHWEST => Direction.NORTHEAST,
-                    Direction.NORTHEAST => Direction.EAST,
-                    Direction.WEST => Direction.NORTHWEST,
-                    Direction.EAST => Direction.SOUTHEAST,
-                    Direction.SOUTHWEST => Direction.WEST,
-                    Direction.SOUTHEAST => Direction.SOUTHWEST,
+                    Direction.NORTH_WEST => Direction.NORTH_EAST,
+                    Direction.NORTH_EAST => Direction.EAST,
+                    Direction.WEST => Direction.NORTH_WEST,
+                    Direction.EAST => Direction.SOUTH_EAST,
+                    Direction.SOUTH_WEST => Direction.WEST,
+                    Direction.SOUTH_EAST => Direction.SOUTH_WEST,
                     _ => Direction.NONE,
                 },
                 Turn.SHARP_LEFT => DirAfterTurn(DirAfterTurn(before, Turn.LEFT), Turn.LEFT),
@@ -345,18 +345,18 @@ namespace Hex_Casting_Generator.Graphs
         {
             switch (str)
             {
-                case "east":
+                case "EAST":
                     return Direction.EAST;
-                case "west":
+                case "WEST":
                     return Direction.WEST;
-                case "northeast":
-                    return Direction.NORTHEAST;
-                case "northwest":
-                    return Direction.NORTHWEST;
-                case "southeast":
-                    return Direction.SOUTHEAST;
-                case "southwest":
-                    return Direction.SOUTHWEST;
+                case "NORTH_EAST":
+                    return Direction.NORTH_EAST;
+                case "NORTH_WEST":
+                    return Direction.NORTH_WEST;
+                case "SOUTH_EAST":
+                    return Direction.SOUTH_EAST;
+                case "SOUTH_WEST":
+                    return Direction.SOUTH_WEST;
                 default:
                     return Direction.NONE;
             }
@@ -397,7 +397,7 @@ namespace Hex_Casting_Generator.Graphs
 
     public enum Direction
     {
-        NORTHWEST, NORTHEAST, WEST, EAST, SOUTHWEST, SOUTHEAST, NONE
+        NORTH_WEST, NORTH_EAST, WEST, EAST, SOUTH_WEST, SOUTH_EAST, NONE
     }
 
     public enum Turn

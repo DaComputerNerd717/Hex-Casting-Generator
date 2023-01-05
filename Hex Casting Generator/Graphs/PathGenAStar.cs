@@ -43,12 +43,13 @@ namespace Hex_Casting_Generator.Graphs
                         if (smallest == null || GetPathBounds(smallest).GetArea() > GetPathBounds(toCompare).GetArea())
                         {
                             smallest = toCompare;
-                            List<(Path, int)> toKeep = frontier.UnorderedItems.Where(t => t.Priority <= smallest.PathLength() &&
-                                        GetPathBounds(t.Element).GetArea() < GetPathBounds(smallest).GetArea()).ToList();
+                            List<(Path, int)> toKeep = frontier.UnorderedItems.Where(t => GetPathBounds(t.Element).GetArea() < GetPathBounds(smallest).GetArea()).ToList();
                             frontier.Clear();
                             frontier.EnqueueRange(toKeep);
                         }
                     }
+                    //if(target < 10) //the heuristic is only consistent if the target's greater than 10, I think.  
+                      //  return smallest; //one of our first finds will be smallest, I believe. 
                 }
             }
             return smallest;
@@ -89,8 +90,7 @@ namespace Hex_Casting_Generator.Graphs
                     {
                         if (PathValue(newPath) > target && Interlocked.Equals(MainWindow.limitVals, 1))
                             continue;
-                        if (smallest != null && (newPath.PathLength() > smallest.PathLength() ||
-                                    GetPathBounds(newPath).GetArea() > GetPathBounds(smallest).GetArea()))
+                        if (smallest != null && GetPathBounds(newPath).GetArea() > GetPathBounds(smallest).GetArea())
                         { //we have a better path already
                             Debug.WriteLine("Path " + p.ToString() + " worse than " + smallest.ToString());
                             continue;
@@ -101,7 +101,7 @@ namespace Hex_Casting_Generator.Graphs
                 }
             }
             if(smallest != null)
-                paths.RemoveAll(p => p.PathLength() > smallest.PathLength() || GetPathBounds(p).GetArea() > GetPathBounds(smallest).GetArea());
+                paths.RemoveAll(p => GetPathBounds(p).GetArea() > GetPathBounds(smallest).GetArea());
             return paths;
         }
 

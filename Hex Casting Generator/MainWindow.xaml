@@ -48,7 +48,7 @@
                         </TextBlock>
                     </MenuItem.ToolTip>
                 </MenuItem>
-                <MenuItem IsCheckable="True" IsChecked="True" Header="Enable _Anti-aliasing" x:Name="menuAliasing">
+                <MenuItem IsCheckable="True" IsChecked="True" Header="_Enable Anti-aliasing" x:Name="menuAliasing">
                     <MenuItem.ToolTip>
                         <TextBlock>
                             If enabled, lines will be antialiased, reducing jaggedness.
@@ -57,12 +57,21 @@
                         </TextBlock>
                     </MenuItem.ToolTip>
                 </MenuItem>
-                <MenuItem IsCheckable="True" IsChecked="False" Header ="_Use A* Algorithm" x:Name="menuAStar">
+                <MenuItem IsCheckable="True" IsChecked="False" Header ="Use _A* Algorithm" x:Name="menuAStar">
                     <MenuItem.ToolTip>
                         <TextBlock>
-                            If disabled, the generator uses the Beam Search algorithm. This algorithm is not guaranteed to find the best pattern, but will run relatively quickly.
+                            If both algorithm options are disabled, the generator uses the Beam Search algorithm. This algorithm is not guaranteed to find the best pattern, but will run relatively quickly.
                             <LineBreak/>
-                            If enabled, the generator uses the A* algorithm. This algorithm can be slower, but is guaranteed to give one of the shortest possible paths. This algorithm also uses substantially more memory than beam search.
+                            If enabled, the generator uses the A* algorithm. This algorithm can be slower than beam search, but is guaranteed to give one of the shortest possible paths. This algorithm also uses substantially more memory than beam search.
+                        </TextBlock>
+                    </MenuItem.ToolTip>
+                </MenuItem>
+                <MenuItem IsCheckable="True" IsChecked="False" Header="Use _IDS Algorithm" x:Name="menuIDS">
+                    <MenuItem.ToolTip>
+                        <TextBlock>
+                            If both algorithm options are disabled, the generator uses the Beam Search algorithm. This algorithm is not guaranteed to find the best pattern, but will run relatively quickly.
+                            <LineBreak/>
+                            If enabled, the generator uses the IDS algorithm. This algorithm can be slower than beam search and A*, but is guaranteed to find the shortest path and generally takes less memory than A*
                         </TextBlock>
                     </MenuItem.ToolTip>
                 </MenuItem>

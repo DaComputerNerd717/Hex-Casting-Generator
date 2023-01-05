@@ -27,7 +27,7 @@ namespace Hex_Casting_Generator
         Graphs.Path? path = null;
 
         bool beenRun = false;
-        static int genAStar = 0;
+        static int genAStar = 0, genIDS = 0;
 
         static int color1 = 0x3380cc;
         static int color2 = 0xfb80fb; 
@@ -56,6 +56,8 @@ namespace Hex_Casting_Generator
             menuAliasing.Unchecked += DisableAntialiasing;
             menuAStar.Checked += EnableAStar;
             menuAStar.Unchecked += DisableAStar;
+            menuIDS.Checked += EnableIDS;
+            menuIDS.Unchecked += DisableIDS;
         }
 
         Regex colorMatch3 = new(@"([\da-f])([\da-f])([\da-f])");
@@ -83,6 +85,8 @@ namespace Hex_Casting_Generator
 
         public void EnableAStar(object sender, EventArgs e)
         {
+            menuIDS.IsChecked = false;
+            Interlocked.Exchange(ref genIDS, 0);
             Interlocked.Exchange(ref genAStar, 1);
         }
 
@@ -90,6 +94,19 @@ namespace Hex_Casting_Generator
         {
             Interlocked.Exchange(ref genAStar, 0);
         }
+
+        public void EnableIDS(object sender, EventArgs e)
+        {
+            menuAStar.IsChecked = false;
+            Interlocked.Exchange(ref genAStar, 0);
+            Interlocked.Exchange(ref genIDS, 1);
+        }
+
+        public void DisableIDS(object sender, EventArgs e)
+        {
+            Interlocked.Exchange(ref genIDS, 0);
+        }
+
 
         public void ApplyColor(object sender, RoutedEventArgs e)
         {
@@ -394,10 +411,12 @@ namespace Hex_Casting_Generator
                 this.Title = "Hex Casting Pattern Generator - Generating";
                 HexGraph graph = new(rows, cols);
                 PathGenBase gen;
-                if (genAStar == 0)
-                    gen = new PathGenerator(target, graph, carryOver); //beam search
-                else
+                if (genAStar == 1)
                     gen = new PathGenAStar(target, graph); //A*
+                else if (genIDS == 1)
+                    gen = new PathGenIDS(target, graph);
+                else
+                    gen = new PathGenerator(target, graph, carryOver); //beam search               
                 await GenPathAsync(gen).ContinueWith((t) =>
                 {
                     Interlocked.Exchange(ref this.path, t.Result);
